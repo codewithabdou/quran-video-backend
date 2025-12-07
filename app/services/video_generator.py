@@ -243,12 +243,17 @@ def generate_video(request: VideoRequest) -> str:
             raise Exception(f"Error creating text clips: {str(e)}")
 
     # PHASE 4: Final Composition
+    os.makedirs(settings.OUTPUT_DIR, exist_ok=True)
+    output_filename = os.path.join(settings.OUTPUT_DIR, f"quran_{request.platform.value}_{request.surah}_{request.ayah_start}-{request.ayah_end}.mp4")
+
     try:
         final_video_clip = CompositeVideoClip([background_clip] + all_text_clips,
                                               size=(target_width, target_height))
         final_video_clip = final_video_clip.with_audio(concatenated_audio)
         final_video_clip = final_video_clip.with_duration(total_audio_duration)
         
+        # Optimize for Rendering on Free Tier (Low Memory/CPU)
+        temp_audio_path = os.path.join(settings.TEMP_DIR, "temp-audio.m4a")
         final_video_clip.write_videofile(
             output_filename,
             fps=settings.FPS,
@@ -256,9 +261,11 @@ def generate_video(request: VideoRequest) -> str:
             audio_codec=settings.AUDIO_CODEC,
             bitrate=settings.VIDEO_BITRATE,
             audio_bitrate=settings.AUDIO_BITRATE,
-            preset="medium",
-            threads=os.cpu_count() or 4,
-            logger='bar'
+            preset="ultrafast",   # faster encoding to avoid timeouts
+            threads=1,            # 1 thread to avoid OOM on free tier
+            logger='bar',
+            temp_audiofile=temp_audio_path,
+            remove_temp=True
         )
     except Exception as e:
         cleanup_temp_dir(settings.TEMP_DIR)

@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     FONTS_DIR: str = os.path.join(BASE_DIR, "fonts")
     TEMP_DIR: str = os.path.join(BASE_DIR, "temp_assets")
+    OUTPUT_DIR: str = os.path.join(BASE_DIR, "outputs")
     LOGS_DIR: str = os.path.join(BASE_DIR, "logs")
     
     ARABIC_FONT: str = os.path.join(FONTS_DIR, "Amiri-Regular.ttf")
