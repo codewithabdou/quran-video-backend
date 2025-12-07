@@ -16,9 +16,16 @@ RUN apt-get update && apt-get install -y ffmpeg imagemagick && rm -rf /var/lib/a
 # Copy requirements
 COPY requirements.txt .
 
-# Fix ImageMagick policy to allow text operations and limit memory usage to prevent OOM
-RUN sed -i 's/none/read,write/g' /etc/ImageMagick-6/policy.xml && \
-    sed -i 's/<policy domain="resource" name="memory" value="256MiB"\/>/<policy domain="resource" name="memory" value="256MiB"\/>/g' /etc/ImageMagick-6/policy.xml || true
+# Fix ImageMagick policy to allow text operations and limit memory usage
+# Try to modify policy.xml in common locations (v6 and v7)
+RUN if [ -f /etc/ImageMagick-6/policy.xml ]; then \
+    sed -i 's/none/read,write/g' /etc/ImageMagick-6/policy.xml && \
+    sed -i 's/<policy domain="resource" name="memory" value="256MiB"\/>/<policy domain="resource" name="memory" value="512MiB"\/>/g' /etc/ImageMagick-6/policy.xml; \
+    fi && \
+    if [ -f /etc/ImageMagick-7/policy.xml ]; then \
+    sed -i 's/none/read,write/g' /etc/ImageMagick-7/policy.xml && \
+    sed -i 's/<policy domain="resource" name="memory" value="256MiB"\/>/<policy domain="resource" name="memory" value="512MiB"\/>/g' /etc/ImageMagick-7/policy.xml; \
+    fi || true
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
