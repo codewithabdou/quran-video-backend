@@ -19,5 +19,5 @@ COPY . .
 # Expose port (Render sets PORT env var, but we document it essentially)
 EXPOSE 8000
 
-# Run the app
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "10000"]
+# Run the app using the PORT environment variable provided by Render (default 10000)
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-10000}"]
