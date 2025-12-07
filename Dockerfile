@@ -5,10 +5,15 @@ FROM python:3.10-slim
 WORKDIR /app
 
 # Install system dependencies (FFmpeg is required)
-RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
+# Install system dependencies (FFmpeg and ImageMagick are required)
+RUN apt-get update && apt-get install -y ffmpeg imagemagick && rm -rf /var/lib/apt/lists/*
+
 
 # Copy requirements
 COPY requirements.txt .
+
+# Fix ImageMagick policy to allow text operations (common issue in containers)
+RUN sed -i 's/none/read,write/g' /etc/ImageMagick-6/policy.xml || true
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
