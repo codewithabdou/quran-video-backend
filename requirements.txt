@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+moviepy
+requests
+arabic-reshaper
+python-bidi
+pydantic-settings
