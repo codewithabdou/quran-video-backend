@@ -5,3 +5,4 @@ requests
 arabic-reshaper
 python-bidi
 pydantic-settings
+Pillow
