@@ -20,11 +20,11 @@ COPY requirements.txt .
 # Try to modify policy.xml in common locations (v6 and v7)
 RUN if [ -f /etc/ImageMagick-6/policy.xml ]; then \
     sed -i 's/none/read,write/g' /etc/ImageMagick-6/policy.xml && \
-    sed -i 's/<policy domain="resource" name="memory" value="256MiB"\/>/<policy domain="resource" name="memory" value="512MiB"\/>/g' /etc/ImageMagick-6/policy.xml; \
+    sed -i 's/<policy domain="resource" name="memory" value="256MiB"\/>/<policy domain="resource" name="memory" value="128MiB"\/>/g' /etc/ImageMagick-6/policy.xml; \
     fi && \
     if [ -f /etc/ImageMagick-7/policy.xml ]; then \
     sed -i 's/none/read,write/g' /etc/ImageMagick-7/policy.xml && \
-    sed -i 's/<policy domain="resource" name="memory" value="256MiB"\/>/<policy domain="resource" name="memory" value="512MiB"\/>/g' /etc/ImageMagick-7/policy.xml; \
+    sed -i 's/<policy domain="resource" name="memory" value="256MiB"\/>/<policy domain="resource" name="memory" value="128MiB"\/>/g' /etc/ImageMagick-7/policy.xml; \
     fi || true
 
 # Install Python dependencies

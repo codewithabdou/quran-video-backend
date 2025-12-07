@@ -1,4 +1,5 @@
 import os
+import gc
 import requests
 from moviepy import (
     AudioFileClip, VideoFileClip, TextClip,
@@ -246,9 +247,14 @@ def generate_video(request: VideoRequest) -> str:
     os.makedirs(settings.OUTPUT_DIR, exist_ok=True)
     output_filename = os.path.join(settings.OUTPUT_DIR, f"quran_{request.platform.value}_{request.surah}_{request.ayah_start}-{request.ayah_end}.mp4")
 
+    # Force GC before heavy lifting
+    gc.collect()
+
+    final_video_clip = None
     try:
         final_video_clip = CompositeVideoClip([background_clip] + all_text_clips,
                                               size=(target_width, target_height))
+        # Ensure we attach audio
         final_video_clip = final_video_clip.with_audio(concatenated_audio)
         final_video_clip = final_video_clip.with_duration(total_audio_duration)
         
@@ -260,16 +266,46 @@ def generate_video(request: VideoRequest) -> str:
             codec=settings.VIDEO_CODEC,
             audio_codec=settings.AUDIO_CODEC,
             bitrate=settings.VIDEO_BITRATE,
-            audio_bitrate=settings.AUDIO_BITRATE,
-            preset="ultrafast",   # faster encoding to avoid timeouts
-            threads=1,            # 1 thread to avoid OOM on free tier
+            audio_bitrate='128k', # Lower audio bitrate to save RAM
+            preset="ultrafast",   # faster encoding
+            threads=1,            # Single thread for memory safety
             logger='bar',
             temp_audiofile=temp_audio_path,
             remove_temp=True
         )
     except Exception as e:
+        logger.error(f"Error during video composition/export: {str(e)}")
+        # If export failed, clean up the output file if it was created partially
+        if os.path.exists(output_filename):
+            try: os.remove(output_filename)
+            except: pass
         cleanup_temp_dir(settings.TEMP_DIR)
-        raise Exception(f"Error during video export: {str(e)}")
+        raise e
+    finally:
+        # Aggressive Manual Cleanup
+        logger.info("Starting manual resource cleanup...")
+        try:
+            if final_video_clip: final_video_clip.close()
+        except: pass
+        
+        try:
+            background_clip.close()
+        except: pass
+        
+        try:
+            concatenated_audio.close()
+        except: pass
+        
+        for c in audio_clips:
+            try: c.close()
+            except: pass
+            
+        for c in all_text_clips:
+            try: c.close()
+            except: pass
+            
+        gc.collect() # Final sweep
+
     
     # Cleanup clips
     try:
