@@ -17,5 +17,6 @@ app.add_middleware(
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 @app.get("/")
+@app.head("/")
 async def root():
     return {"message": "Welcome to Quran Video Generator API. Use POST /api/v1/generate-video to create videos."}
