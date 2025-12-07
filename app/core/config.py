@@ -6,12 +6,12 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Quran Video Generator API"
     API_V1_STR: str = "/api/v1"
     
-    # Platform Defaults (Aggressive Optimization for Free Tier)
-    REEL_WIDTH: int = 480
-    REEL_HEIGHT: int = 854
+    # Platform Defaults (Optimized for Free Tier)
+    REEL_WIDTH: int = 720
+    REEL_HEIGHT: int = 1280
     
-    YOUTUBE_WIDTH: int = 854
-    YOUTUBE_HEIGHT: int = 480
+    YOUTUBE_WIDTH: int = 1280
+    YOUTUBE_HEIGHT: int = 720
     
     # Video Settings
     FPS: int = 24
