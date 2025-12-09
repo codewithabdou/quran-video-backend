@@ -15,3 +15,4 @@ class VideoRequest(BaseModel):
     background_url: str = "https://www.pexels.com/download/video/34464845/"
     platform: VideoPlatform = VideoPlatform.REEL
     resolution: Literal[360, 480, 720, 1080] = 720
+    request_id: str | None = None

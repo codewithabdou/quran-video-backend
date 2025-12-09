@@ -9,7 +9,10 @@ def download_file(url, local_filename):
     """Downloads a file from a URL to a local path."""
     os.makedirs(os.path.dirname(local_filename), exist_ok=True)
     try:
-        with requests.get(url, stream=True, timeout=30) as r:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        with requests.get(url, stream=True, timeout=30, headers=headers) as r:
             r.raise_for_status()
             with open(local_filename, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=8192):
